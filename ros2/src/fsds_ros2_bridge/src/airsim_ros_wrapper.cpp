@@ -145,8 +145,8 @@ void AirsimROSWrapper::initialize_ros()
     update_gss_every_n_sec          = nh_->declare_parameter<double>     ("update_gss_every_n_sec"         , 0.01);
     update_wheel_states_every_n_sec = nh_->declare_parameter<double>     ("update_wheel_states_every_n_sec", 0.01);
     publish_static_tf_every_n_sec   = nh_->declare_parameter<double>     ("publish_static_tf_every_n_sec"  , 1.0);
-    map_frame_id_                   = nh_->declare_parameter<std::string>("map_frame_id"                   , "fsds/map");
-    vehicle_frame_id_               = nh_->declare_parameter<std::string>("vehicle_frame_id"               , "fsds/FSCar");
+    map_frame_id_                   = nh_->declare_parameter<std::string>("map_frame_id"                   , "/map");
+    vehicle_frame_id_               = nh_->declare_parameter<std::string>("vehicle_frame_id"               , "/base_link");
 
 
     RCLCPP_INFO_STREAM(nh_->get_logger(), "Manual mode: " << manual_mode);

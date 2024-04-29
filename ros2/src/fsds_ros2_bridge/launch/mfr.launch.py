@@ -17,10 +17,9 @@ def generate_launch_description():
     # launch bridge
     fsds_ros2_bridge_launch = GroupAction(
         actions=[
-
             SetRemap(src='/lidar/lidar',dst='/lidar/points'),
             SetRemap(src='/gps',dst='/gps/fix'),
-
+            SetRemap(src="/testing_only/odom", dst="/ground_truth/odom"),
             IncludeLaunchDescription(
                  PythonLaunchDescriptionSource(fsds_ros2_bridge_path + '/launch/fsds_ros2_bridge.launch.py')
             )
