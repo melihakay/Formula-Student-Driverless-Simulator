@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<robot name="sim_car">
+
+    <link name="base_footprint">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </link>
+
+    <link name="base_link">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </link>
+
+    <link name="fsd/FSCar">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </link>
+
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <joint name="base_to_FSC" type="fixed">
+        <parent link="base_link"/>
+        <child link="fsd/FSCar"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+    
+</robot>

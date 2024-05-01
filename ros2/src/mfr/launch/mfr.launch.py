@@ -13,6 +13,16 @@ from launch.substitutions import LaunchConfiguration,TextSubstitution,PathJoinSu
 
 def generate_launch_description():
     
+    urdf_path = get_package_share_directory("mfr") + "/config/simcar.urdf"
+
+    with open(urdf_path, "r") as raw_file:
+        urdf_data = raw_file.read()
+
+    robot_state_publisher_node = Node(package    = "robot_state_publisher",
+		  	    executable = "robot_state_publisher",
+			    name       = "fsc_robot_state_publisher",
+			    parameters = [{"robot_description": urdf_data}])
+
     # launch fsds bridge
     fsds_ros2_bridge_path = get_package_share_directory('fsds_ros2_bridge')
     fsds_ros2_bridge_launch = GroupAction(
@@ -70,7 +80,8 @@ def generate_launch_description():
             pointcloud_to_laserscan_node,
             slam_toolbox_launch,
             static_tf_node,
-            odom_to_tf_node
+            odom_to_tf_node,
+            robot_state_publisher_node
         ]
     )
 
