@@ -12,7 +12,8 @@
   <depend>fsds_ros2_bridge</depend>
   <depend>pointcloud_to_laserscan</depend>
   <depend>slam_toolbox</depend>
-  <depend>odom-to-tf-ros2</depend>
+  <depend>odom_to_tf_ros2</depend>
+  <depend>foxglove_bridge</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

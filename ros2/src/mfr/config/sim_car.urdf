@@ -9,19 +9,19 @@
         <origin xyz="0 0 0" rpy="0 0 0" />
     </link>
 
-    <link name="fsd/FSCar">
+    <link name="fsds/FSCar">
         <origin xyz="0 0 0" rpy="0 0 0" />
     </link>
 
-    <joint name="base_joint" type="fixed">
-        <parent link="base_footprint"/>
-        <child link="base_link"/>
+    <joint name="footprint_link" type="fixed">
+        <parent link="base_link"/>
+        <child link="base_footprint"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
-    <joint name="base_to_FSC" type="fixed">
-        <parent link="base_link"/>
-        <child link="fsd/FSCar"/>
+    <joint name="FSDS_to_base_footprint" type="fixed">
+        <parent link="fsds/FSCar"/>
+        <child link="base_link"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
     
