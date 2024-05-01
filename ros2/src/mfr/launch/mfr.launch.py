@@ -77,6 +77,12 @@ def generate_launch_description():
         executable = "joy_controller",
         name="control_node"
         )
+    
+    joy_node = Node(
+        name="joy_node",
+        package="joy",
+        executable="joy_node"
+    )
 
 
     ld= LaunchDescription(
@@ -88,7 +94,8 @@ def generate_launch_description():
             #static_tf_node,
             odom_to_tf_node,
             robot_state_publisher_node,
-            joy_controller_node
+            joy_controller_node,
+            joy_node
         ]
     )
 

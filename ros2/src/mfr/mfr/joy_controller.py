@@ -24,9 +24,9 @@ class JoyController(Node):
         buttons = joy_state.buttons
         axes    = joy_state.axes
 
-        max_steering = 0.4
+        max_steering = 1.0 # 0.4
         max_throttle = 0.2
-        max_brake = 0.3
+        max_brake = 1.0 # 0.3
 
         # Change multiplication
         steering = axes[0]  # -1 to 1

@@ -25,7 +25,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "joy_controller=mfr_control.joy_controller:main"
+            "joy_controller=mfr.joy_controller:main"
         ],
     },
 )
