@@ -28,7 +28,7 @@
           "lidar": {
             "SensorType": 6,
             "Enabled": true,
-            "X": 1.66, "Y": 0, "Z": 0.10,
+            "X": 1.56, "Y": 0, "Z": 0.10,
             "Roll": 0, "Pitch": 0, "Yaw" : 0,
             "NumberOfLasers": 16,
             "PointsPerScan": 4096,
