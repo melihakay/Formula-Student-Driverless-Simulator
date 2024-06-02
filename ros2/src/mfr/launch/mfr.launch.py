@@ -92,7 +92,7 @@ def generate_launch_description():
             pointcloud_to_laserscan_node,
             #slam_toolbox_launch,
             #static_tf_node,
-            odom_to_tf_node,
+            # odom_to_tf_node,
             robot_state_publisher_node,
             joy_controller_node,
             joy_node
