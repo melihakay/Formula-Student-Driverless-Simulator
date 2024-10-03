@@ -14,3 +14,7 @@ __pycache__/
 
 # engine binaries
 engine/
+
+# ROS build artifacts
+ros2
+!ros2/src/

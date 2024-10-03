@@ -1,4 +1,4 @@
-echo 'Installing WheelieSim requirements'
+echo 'Installing Wheelie Sim requirements'
 echo ''
 
 # AirSim
@@ -53,8 +53,12 @@ then
     exit 1
 fi
 
+# Wheelie Sim
+
+
+
 # Symlinks
-sudo ln -s ~/Formula-Student-Driverless/bin/run.sh /usr/local/bin/fsds.sh
+sudo ln -s ~/Formula-Student-Driverless/wheelie_sim/run.sh /usr/local/bin/wheelieSim
 
 echo 'Installation complete'
 echo ''
