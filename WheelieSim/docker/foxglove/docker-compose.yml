@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  foxglove:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mfr:foxglove-fsds
+    container_name: fsds_foxglove_container
+    privileged: true
+    network_mode: host
+    ipc: host
+    pid: host
+    user: ros
+    shm_size: 8g
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - DISPLAY=$DISPLAY
+    devices:
+      - /dev/snd
+      - /dev/bus/usb
+
