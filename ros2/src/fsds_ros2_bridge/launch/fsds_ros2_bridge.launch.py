@@ -19,12 +19,11 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='fsds_ros2_bridge',
             executable='fsds_ros2_bridge_camera',
-            namespace= CAR_NAME + "/camera", 
             name=camera_name,
             output='screen',
             parameters=[
                 {'camera_name': camera_name},
-                {'camera_frame_prefix': CAR_NAME + "/sensor/camera"},
+                {'camera_frame_prefix': CAR_NAME + "/sensor/"},
                 {'depthcamera': camera_config["CaptureSettings"][0]["ImageType"] == 2},
                 {'framerate': CAMERA_FRAMERATE},
                 {'host_ip': launch.substitutions.LaunchConfiguration('host')},

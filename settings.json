@@ -25,32 +25,18 @@
             "SensorType": 3,
             "Enabled": true
           },
-          "Lidar1": {
-            "SensorType": 6,
-            "Enabled": true,
-            "X": 0.45, "Y": 0, "Z": 0.55,
-            "Roll": 0, "Pitch": 0, "Yaw" : 0,
-            "NumberOfLasers": 4,
-            "PointsPerScan": 4096,
-            "VerticalFOVUpper": 5,
-            "VerticalFOVLower": -5,
-            "HorizontalFOVStart": -90,
-            "HorizontalFOVEnd": 90,
-            "RotationsPerSecond": 10,
-            "DrawDebugPoints": false
-          },
-          "Lidar2": {
+          "lidar": {
             "SensorType": 6,
             "Enabled": true,
             "X": 1.20, "Y": 0, "Z": 0.2,
             "Roll": 0, "Pitch": 0, "Yaw" : 0,
-            "NumberOfLasers": 4,
-            "PointsPerScan": 4096,
-            "VerticalFOVUpper": 5,
-            "VerticalFOVLower": -5,
-            "HorizontalFOVStart": -90,
-            "HorizontalFOVEnd": 90,
-            "RotationsPerSecond": 5,
+            "NumberOfLasers": 16,
+            "PointsPerScan": 16384,
+            "VerticalFOVUpper": 15,
+            "VerticalFOVLower": -15,
+            "HorizontalFOVStart": -135,
+            "HorizontalFOVEnd": 135,
+            "RotationsPerSecond": 10,
             "DrawDebugPoints": false
           },
           "GSS" : {
@@ -59,7 +45,7 @@
           }
         },
         "Cameras": {
-          "cam1": {
+          "right_cam": {
             "CaptureSettings": [
             {
                 "ImageType": 0,
@@ -75,7 +61,7 @@
             "Roll": 0.0,
             "Yaw": 0
         },
-          "cam2": {
+          "left_cam": {
             "CaptureSettings": [
               {
                 "ImageType": 0,

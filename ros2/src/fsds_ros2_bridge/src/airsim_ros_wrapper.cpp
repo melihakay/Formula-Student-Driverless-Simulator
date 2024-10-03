@@ -224,15 +224,15 @@ void AirsimROSWrapper::create_ros_pubs_from_settings_json()
         clock_pub = nh_->create_publisher<rosgraph_msgs::msg::Clock>("/clock", 10);
 
         if(enabled_sensors.gps){
-            global_gps_pub = nh_->create_publisher<sensor_msgs::msg::NavSatFix>(CAR_NAME + "/gps", 10);
+            global_gps_pub = nh_->create_publisher<sensor_msgs::msg::NavSatFix>(CAR_NAME + "/vehicle/" + "gps", 10);
         }
         
         if(enabled_sensors.imu){
-            imu_pub = nh_->create_publisher<sensor_msgs::msg::Imu>(CAR_NAME + "/sensor/" + "imu", 10);
+            imu_pub = nh_->create_publisher<sensor_msgs::msg::Imu>(CAR_NAME + "/vehicle/" + "imu", 10);
         }
 
         if(enabled_sensors.gss){
-            gss_pub = nh_->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(CAR_NAME + "/gss", 10);
+            gss_pub = nh_->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(CAR_NAME + "/vehicle/" +"gss", 10);
         }
 
         wheel_states_pub = nh_->create_publisher<fs_msgs::msg::WheelStates>(CAR_NAME + "/vehicle/" + "wheel_states", 10);
@@ -387,7 +387,7 @@ nav_msgs::msg::Odometry AirsimROSWrapper::get_odom_msg_from_airsim_state(const m
 sensor_msgs::msg::PointCloud2 AirsimROSWrapper::get_lidar_msg_from_airsim(const std::string &lidar_name, const msr::airlib::LidarData& lidar_data) const
 {
     sensor_msgs::msg::PointCloud2 lidar_msg;
-    lidar_msg.header.frame_id = CAR_NAME + lidar_name;
+    lidar_msg.header.frame_id = CAR_NAME + "/sensor/" + lidar_name;
 
     if (lidar_data.point_cloud.size() > 3)
     {
@@ -744,7 +744,7 @@ void AirsimROSWrapper::append_static_lidar_tf(const std::string& vehicle_name, c
 
     geometry_msgs::msg::TransformStamped lidar_tf_msg;
     lidar_tf_msg.header.frame_id = CAR_NAME + "/base_link";
-    lidar_tf_msg.child_frame_id = CAR_NAME + lidar_name;
+    lidar_tf_msg.child_frame_id = CAR_NAME + "/sensor/" + lidar_name;
     lidar_tf_msg.transform.translation.x = lidar_setting.position.x();
     lidar_tf_msg.transform.translation.y = lidar_setting.position.y();
     lidar_tf_msg.transform.translation.z = lidar_setting.position.z();
@@ -762,12 +762,30 @@ void AirsimROSWrapper::append_static_camera_tf(const std::string& vehicle_name, 
 {
     geometry_msgs::msg::TransformStamped static_cam_tf_body_msg;
     static_cam_tf_body_msg.header.frame_id = CAR_NAME + "/base_link";
-    static_cam_tf_body_msg.child_frame_id = CAR_NAME +  camera_name;
+    static_cam_tf_body_msg.child_frame_id = CAR_NAME + "/sensor/" +  camera_name;
     static_cam_tf_body_msg.transform.translation.x = camera_setting.position.x();
     static_cam_tf_body_msg.transform.translation.y = camera_setting.position.y();
     static_cam_tf_body_msg.transform.translation.z = camera_setting.position.z();
+    // tf2::Quaternion quat;
+    // quat.setRPY(math_common::deg2rad(camera_setting.rotation.roll), math_common::deg2rad(camera_setting.rotation.pitch), math_common::deg2rad(camera_setting.rotation.yaw));
+    // static_cam_tf_body_msg.transform.rotation.x = quat.x();
+    // static_cam_tf_body_msg.transform.rotation.y = quat.y();
+    // static_cam_tf_body_msg.transform.rotation.z = quat.z();
+    // static_cam_tf_body_msg.transform.rotation.w = quat.w();
+
+    // Existing quaternion from camera settings
     tf2::Quaternion quat;
-    quat.setRPY(math_common::deg2rad(camera_setting.rotation.roll), math_common::deg2rad(camera_setting.rotation.pitch), math_common::deg2rad(camera_setting.rotation.yaw));
+    quat.setRPY(math_common::deg2rad(camera_setting.rotation.roll), 
+                math_common::deg2rad(camera_setting.rotation.pitch), 
+                math_common::deg2rad(camera_setting.rotation.yaw));
+
+    // New quaternion representing the additional rotation
+    tf2::Quaternion additional_rotation(-0.5, 0.5, -0.5, 0.5);
+
+    // Multiply the quaternions to apply the additional rotation
+    quat *= additional_rotation;
+
+    // Assign the result to the transform message
     static_cam_tf_body_msg.transform.rotation.x = quat.x();
     static_cam_tf_body_msg.transform.rotation.y = quat.y();
     static_cam_tf_body_msg.transform.rotation.z = quat.z();
@@ -789,7 +807,7 @@ void AirsimROSWrapper::lidar_timer_cb(const std::string& lidar_name, const int l
             lck.unlock();
         }
         lidar_msg = get_lidar_msg_from_airsim(lidar_name, lidar_data);     // todo make const ptr msg to avoid copy
-        lidar_msg.header.frame_id = CAR_NAME + lidar_name;
+        lidar_msg.header.frame_id = CAR_NAME + "/sensor/" + lidar_name;
         lidar_msg.header.stamp = make_ts(lidar_data.time_stamp);
 
         {
