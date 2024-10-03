@@ -5,6 +5,7 @@
 #include "common/AirSimSettings.hpp"
 
 using dseconds = std::chrono::duration<double>;
+std::string CAR_NAME = "wheelie";
 
 AirsimROSWrapper::AirsimROSWrapper(const std::shared_ptr<rclcpp::Node>& nh, const std::string& host_ip, double timeout_sec) 
                                                                                                   : nh_(nh),
@@ -145,8 +146,8 @@ void AirsimROSWrapper::initialize_ros()
     update_gss_every_n_sec          = nh_->declare_parameter<double>     ("update_gss_every_n_sec"         , 0.01);
     update_wheel_states_every_n_sec = nh_->declare_parameter<double>     ("update_wheel_states_every_n_sec", 0.01);
     publish_static_tf_every_n_sec   = nh_->declare_parameter<double>     ("publish_static_tf_every_n_sec"  , 1.0);
-    map_frame_id_                   = nh_->declare_parameter<std::string>("map_frame_id"                   , "fsds/map");
-    vehicle_frame_id_               = nh_->declare_parameter<std::string>("vehicle_frame_id"               , "fsds/FSCar");
+    map_frame_id_                   = nh_->declare_parameter<std::string>("map_frame_id"                   , "wheelie/map");
+    vehicle_frame_id_               = nh_->declare_parameter<std::string>("vehicle_frame_id"               , "wheelie/base_link");
 
 
     RCLCPP_INFO_STREAM(nh_->get_logger(), "Manual mode: " << manual_mode);
@@ -212,9 +213,10 @@ void AirsimROSWrapper::create_ros_pubs_from_settings_json()
 
         enabled_sensors.print();
 
-        if(curr_vehicle_name != "FSCar") {
-            throw std::invalid_argument("Only the FSCar vehicle_name is allowed.");
-        }
+        // Allow other names than FSCar
+        // if(curr_vehicle_name != "FSCar") {
+        //     throw std::invalid_argument("Only the FSCar vehicle_name is allowed.");
+        // }
 
         set_nans_to_zeros_in_pose(*vehicle_setting);
 
@@ -222,18 +224,18 @@ void AirsimROSWrapper::create_ros_pubs_from_settings_json()
         clock_pub = nh_->create_publisher<rosgraph_msgs::msg::Clock>("/clock", 10);
 
         if(enabled_sensors.gps){
-            global_gps_pub = nh_->create_publisher<sensor_msgs::msg::NavSatFix>("gps", 10);
+            global_gps_pub = nh_->create_publisher<sensor_msgs::msg::NavSatFix>(CAR_NAME + "/gps", 10);
         }
         
         if(enabled_sensors.imu){
-            imu_pub = nh_->create_publisher<sensor_msgs::msg::Imu>("imu", 10);
+            imu_pub = nh_->create_publisher<sensor_msgs::msg::Imu>(CAR_NAME + "/sensor/" + "imu", 10);
         }
 
         if(enabled_sensors.gss){
-            gss_pub = nh_->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("gss", 10);
+            gss_pub = nh_->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(CAR_NAME + "/gss", 10);
         }
 
-        wheel_states_pub = nh_->create_publisher<fs_msgs::msg::WheelStates>("wheel_states", 10);
+        wheel_states_pub = nh_->create_publisher<fs_msgs::msg::WheelStates>(CAR_NAME + "/vehicle/" + "wheel_states", 10);
 
         bool UDP_control;
         nh_->get_parameter("UDP_control", UDP_control);
@@ -290,7 +292,7 @@ void AirsimROSWrapper::create_ros_pubs_from_settings_json()
                 set_nans_to_zeros_in_pose(*vehicle_setting, lidar_setting);
                 append_static_lidar_tf(curr_vehicle_name, sensor_name, lidar_setting); // todo is there a more readable way to down-cast?
                 lidar_names_vec_.push_back(sensor_name);
-                lidar_pub_vec_.push_back(nh_->create_publisher<sensor_msgs::msg::PointCloud2>("lidar/" + sensor_name, 10));
+                lidar_pub_vec_.push_back(nh_->create_publisher<sensor_msgs::msg::PointCloud2>(CAR_NAME + "/sensor/" + sensor_name, 10));
                 lidar_pub_vec_statistics.push_back(ros_bridge::Statistics(sensor_name + "_Publisher"));
                 getLidarDataVecStatistics.push_back(ros_bridge::Statistics(sensor_name + "_RpcCaller"));
 
@@ -385,7 +387,7 @@ nav_msgs::msg::Odometry AirsimROSWrapper::get_odom_msg_from_airsim_state(const m
 sensor_msgs::msg::PointCloud2 AirsimROSWrapper::get_lidar_msg_from_airsim(const std::string &lidar_name, const msr::airlib::LidarData& lidar_data) const
 {
     sensor_msgs::msg::PointCloud2 lidar_msg;
-    lidar_msg.header.frame_id = "fsds/"+lidar_name;
+    lidar_msg.header.frame_id = CAR_NAME + lidar_name;
 
     if (lidar_data.point_cloud.size() > 3)
     {
@@ -448,7 +450,7 @@ sensor_msgs::msg::Imu AirsimROSWrapper::get_imu_msg_from_airsim(const msr::airli
 sensor_msgs::msg::NavSatFix AirsimROSWrapper::get_gps_sensor_msg_from_airsim_geo_point(const msr::airlib::GeoPoint& geo_point) const
 {
     sensor_msgs::msg::NavSatFix gps_msg;
-    gps_msg.header.frame_id = "fsds/" + vehicle_name;
+    gps_msg.header.frame_id = CAR_NAME + "/base_link";
     gps_msg.latitude = geo_point.latitude;
     gps_msg.longitude = geo_point.longitude;
     gps_msg.altitude = geo_point.altitude;
@@ -555,7 +557,7 @@ void AirsimROSWrapper::imu_timer_cb()
         imu_msg.linear_acceleration_covariance[0] = imu_data.sigma_vrw*imu_data.sigma_vrw;
         imu_msg.linear_acceleration_covariance[4] = imu_data.sigma_vrw*imu_data.sigma_vrw;
         imu_msg.linear_acceleration_covariance[8] = imu_data.sigma_vrw*imu_data.sigma_vrw;
-        imu_msg.header.frame_id = "fsds/" + vehicle_name;
+        imu_msg.header.frame_id = CAR_NAME + "/base_link";
         imu_msg.header.stamp = make_ts(imu_data.time_stamp);
         {
             ros_bridge::ROSMsgCounter counter(&imu_pub_statistics);
@@ -582,7 +584,7 @@ void AirsimROSWrapper::gss_timer_cb()
         }
 
         geometry_msgs::msg::TwistWithCovarianceStamped gss_msg;
-        gss_msg.header.frame_id = "fsds/" + vehicle_name;
+        gss_msg.header.frame_id = CAR_NAME + "/base_link";
         gss_msg.header.stamp = make_ts(gss_data.time_stamp);
 
         gss_msg.twist.twist.angular.x = gss_data.angular_velocity.x();
@@ -627,7 +629,7 @@ void AirsimROSWrapper::wheel_states_timer_cb()
 
         fs_msgs::msg::WheelStates wheel_states_msg;
 
-        wheel_states_msg.header.frame_id = "fsds/" + vehicle_name;
+        wheel_states_msg.header.frame_id = CAR_NAME + "/base_link";
         wheel_states_msg.header.stamp = make_ts(wheel_states_data.time_stamp);
         
         wheel_states_msg.fl_rpm = wheel_states_data.fl.rpm;
@@ -741,8 +743,8 @@ void AirsimROSWrapper::append_static_lidar_tf(const std::string& vehicle_name, c
 {
 
     geometry_msgs::msg::TransformStamped lidar_tf_msg;
-    lidar_tf_msg.header.frame_id = "fsds/" + vehicle_name;
-    lidar_tf_msg.child_frame_id = "fsds/" + lidar_name;
+    lidar_tf_msg.header.frame_id = CAR_NAME + "/base_link";
+    lidar_tf_msg.child_frame_id = CAR_NAME + lidar_name;
     lidar_tf_msg.transform.translation.x = lidar_setting.position.x();
     lidar_tf_msg.transform.translation.y = lidar_setting.position.y();
     lidar_tf_msg.transform.translation.z = lidar_setting.position.z();
@@ -759,8 +761,8 @@ void AirsimROSWrapper::append_static_lidar_tf(const std::string& vehicle_name, c
 void AirsimROSWrapper::append_static_camera_tf(const std::string& vehicle_name, const std::string& camera_name, const CameraSetting& camera_setting)
 {
     geometry_msgs::msg::TransformStamped static_cam_tf_body_msg;
-    static_cam_tf_body_msg.header.frame_id = "fsds/" + vehicle_name;
-    static_cam_tf_body_msg.child_frame_id = "fsds/" + camera_name;
+    static_cam_tf_body_msg.header.frame_id = CAR_NAME + "/base_link";
+    static_cam_tf_body_msg.child_frame_id = CAR_NAME +  camera_name;
     static_cam_tf_body_msg.transform.translation.x = camera_setting.position.x();
     static_cam_tf_body_msg.transform.translation.y = camera_setting.position.y();
     static_cam_tf_body_msg.transform.translation.z = camera_setting.position.z();
@@ -787,7 +789,7 @@ void AirsimROSWrapper::lidar_timer_cb(const std::string& lidar_name, const int l
             lck.unlock();
         }
         lidar_msg = get_lidar_msg_from_airsim(lidar_name, lidar_data);     // todo make const ptr msg to avoid copy
-        lidar_msg.header.frame_id = "fsds/" + lidar_name;
+        lidar_msg.header.frame_id = CAR_NAME + lidar_name;
         lidar_msg.header.stamp = make_ts(lidar_data.time_stamp);
 
         {

@@ -47,7 +47,7 @@ std::vector<ImageResponse> getImage(ImageRequest req) {
     std::vector<ImageResponse> img_responses;
     try
     {
-        img_responses = airsim_api->simGetImages(reqs, "FSCar");
+        img_responses = airsim_api->simGetImages(reqs, "wheelie");
     }
     catch (rpc::rpc_error &e)
     {

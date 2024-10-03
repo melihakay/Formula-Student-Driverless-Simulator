@@ -5,12 +5,13 @@ from os.path import expanduser
 import json 
 
 CAMERA_FRAMERATE = 30.0
+CAR_NAME = "wheelie"
 
 def generate_launch_description():
     with open(expanduser("~")+'/Formula-Student-Driverless-Simulator/settings.json', 'r') as file:
         settings = json.load(file)
 
-    camera_configs = settings['Vehicles']['FSCar']['Cameras']
+    camera_configs = settings['Vehicles'][CAR_NAME]['Cameras']
     if(not camera_configs):
         print('no cameras configured in ~/Formula-Student-Driverless-Simulator/settings.json')
 
@@ -18,11 +19,12 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='fsds_ros2_bridge',
             executable='fsds_ros2_bridge_camera',
-            namespace="fsds/camera", 
+            namespace= CAR_NAME + "/camera", 
             name=camera_name,
             output='screen',
             parameters=[
                 {'camera_name': camera_name},
+                {'camera_frame_prefix': CAR_NAME + "/sensor/camera"},
                 {'depthcamera': camera_config["CaptureSettings"][0]["ImageType"] == 2},
                 {'framerate': CAMERA_FRAMERATE},
                 {'host_ip': launch.substitutions.LaunchConfiguration('host')},

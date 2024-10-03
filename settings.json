@@ -8,7 +8,7 @@
       "DefaultCar": { "PawnBP": "Class'/AirSim/VehicleAdv/Cars/TechnionCar/TechnionCarPawn.TechnionCarPawn_C'" }
     },
     "Vehicles": {
-      "FSCar": {
+      "wheelie": {
         "DefaultVehicleState": "",
         "EnableCollisionPassthrogh": false,
         "EnableCollisions": true,
