@@ -147,7 +147,7 @@ void AirsimROSWrapper::initialize_ros()
     update_wheel_states_every_n_sec = nh_->declare_parameter<double>     ("update_wheel_states_every_n_sec", 0.01);
     publish_static_tf_every_n_sec   = nh_->declare_parameter<double>     ("publish_static_tf_every_n_sec"  , 1.0);
     map_frame_id_                   = nh_->declare_parameter<std::string>("map_frame_id"                   , "wheelie/map");
-    vehicle_frame_id_               = nh_->declare_parameter<std::string>("vehicle_frame_id"               , "wheelie/base_link");
+    vehicle_frame_id_               = nh_->declare_parameter<std::string>("vehicle_frame_id"               , "wheelie/cg");
 
 
     RCLCPP_INFO_STREAM(nh_->get_logger(), "Manual mode: " << manual_mode);
@@ -158,6 +158,7 @@ void AirsimROSWrapper::initialize_ros()
     if(!competition_mode_) {
         odom_update_timer_ = nh_->create_wall_timer(dseconds{update_odom_every_n_sec}, std::bind(&AirsimROSWrapper::odom_cb, this));
 		extra_info_timer_ = nh_->create_wall_timer(dseconds{1}, std::bind(&AirsimROSWrapper::extra_info_cb, this));
+        track_timer_ = nh_->create_wall_timer(dseconds{1}, std::bind(&AirsimROSWrapper::publish_track, this));
     }
     clock_timer_ = nh_->create_wall_timer(dseconds{0.01}, std::bind(&AirsimROSWrapper::clock_timer_cb, this));
 
@@ -450,7 +451,7 @@ sensor_msgs::msg::Imu AirsimROSWrapper::get_imu_msg_from_airsim(const msr::airli
 sensor_msgs::msg::NavSatFix AirsimROSWrapper::get_gps_sensor_msg_from_airsim_geo_point(const msr::airlib::GeoPoint& geo_point) const
 {
     sensor_msgs::msg::NavSatFix gps_msg;
-    gps_msg.header.frame_id = CAR_NAME + "/base_link";
+    gps_msg.header.frame_id = CAR_NAME + "/cg";
     gps_msg.latitude = geo_point.latitude;
     gps_msg.longitude = geo_point.longitude;
     gps_msg.altitude = geo_point.altitude;
@@ -557,7 +558,7 @@ void AirsimROSWrapper::imu_timer_cb()
         imu_msg.linear_acceleration_covariance[0] = imu_data.sigma_vrw*imu_data.sigma_vrw;
         imu_msg.linear_acceleration_covariance[4] = imu_data.sigma_vrw*imu_data.sigma_vrw;
         imu_msg.linear_acceleration_covariance[8] = imu_data.sigma_vrw*imu_data.sigma_vrw;
-        imu_msg.header.frame_id = CAR_NAME + "/base_link";
+        imu_msg.header.frame_id = CAR_NAME + "/cg";
         imu_msg.header.stamp = make_ts(imu_data.time_stamp);
         {
             ros_bridge::ROSMsgCounter counter(&imu_pub_statistics);
@@ -584,7 +585,7 @@ void AirsimROSWrapper::gss_timer_cb()
         }
 
         geometry_msgs::msg::TwistWithCovarianceStamped gss_msg;
-        gss_msg.header.frame_id = CAR_NAME + "/base_link";
+        gss_msg.header.frame_id = CAR_NAME + "/cg";
         gss_msg.header.stamp = make_ts(gss_data.time_stamp);
 
         gss_msg.twist.twist.angular.x = gss_data.angular_velocity.x();
@@ -629,7 +630,7 @@ void AirsimROSWrapper::wheel_states_timer_cb()
 
         fs_msgs::msg::WheelStates wheel_states_msg;
 
-        wheel_states_msg.header.frame_id = CAR_NAME + "/base_link";
+        wheel_states_msg.header.frame_id = CAR_NAME + "/cg";
         wheel_states_msg.header.stamp = make_ts(wheel_states_data.time_stamp);
         
         wheel_states_msg.fl_rpm = wheel_states_data.fl.rpm;
@@ -743,7 +744,7 @@ void AirsimROSWrapper::append_static_lidar_tf(const std::string& vehicle_name, c
 {
 
     geometry_msgs::msg::TransformStamped lidar_tf_msg;
-    lidar_tf_msg.header.frame_id = CAR_NAME + "/base_link";
+    lidar_tf_msg.header.frame_id = CAR_NAME + "/cg";
     lidar_tf_msg.child_frame_id = CAR_NAME + "/sensor/" + lidar_name;
     lidar_tf_msg.transform.translation.x = lidar_setting.position.x();
     lidar_tf_msg.transform.translation.y = lidar_setting.position.y();
@@ -761,7 +762,7 @@ void AirsimROSWrapper::append_static_lidar_tf(const std::string& vehicle_name, c
 void AirsimROSWrapper::append_static_camera_tf(const std::string& vehicle_name, const std::string& camera_name, const CameraSetting& camera_setting)
 {
     geometry_msgs::msg::TransformStamped static_cam_tf_body_msg;
-    static_cam_tf_body_msg.header.frame_id = CAR_NAME + "/base_link";
+    static_cam_tf_body_msg.header.frame_id = CAR_NAME + "/cg";
     static_cam_tf_body_msg.child_frame_id = CAR_NAME + "/sensor/" +  camera_name;
     static_cam_tf_body_msg.transform.translation.x = camera_setting.position.x();
     static_cam_tf_body_msg.transform.translation.y = camera_setting.position.y();
