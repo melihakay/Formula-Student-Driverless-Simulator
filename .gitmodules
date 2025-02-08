@@ -8,6 +8,7 @@
 	path = ros2/src/fs_msgs
 	url = https://github.com/FS-Driverless/fs_msgs.git
 	branch = ros2
-[submodule "wheelie_sim"]
-	path = wheelie_sim
-	url = git@github.com:MFR-Software/wheelie_sim.git
+[submodule "wheelie"]
+	path = wheelie
+	url = git@github.com:MFR-Software/wheelie.git
+	branch = simulator

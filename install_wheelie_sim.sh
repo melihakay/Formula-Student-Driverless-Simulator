@@ -20,7 +20,7 @@ rm fsds-v2.2.0-linux.zip
 sudo apt install tmuxinator btop
 
 # Symlinks
-sudo ln -s ~/Formula-Student-Driverless/wheelie_sim/start.sh /usr/local/bin/wheelieSim
+sudo ln -s ~/Formula-Student-Driverless/wheelie/start_simulator.sh /usr/local/bin/wheelieSim
 
 echo 'Installation complete'
 echo ''
