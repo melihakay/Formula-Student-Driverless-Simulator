@@ -1,5 +1,12 @@
 # Formula Student Driverless Simulation
 
+## METU Formula Racing Modifications by Melih Akay
+
+This fork has been tweaked for the use of METU Formula Racing Software Team. Main changes are:
+
+- I have added ROS2 camera calibration publishers. Improved sensor observability and eased up the projection.
+- Changed namespaces to the wheelie. 
+
 ## [Documentation](https://fs-driverless.github.io/Formula-Student-Driverless-Simulator/) / [System overview](/docs/system-overview.md) / [Getting started guide](/docs/getting-started.md) / [Chat](https://github.com/FS-Driverless/Formula-Student-Driverless-Simulator/discussions)
 
 ![Banner](docs/images/banner.png)
